@@ -1,18 +1,18 @@
 "use client";
 
 import MessageService from "@/services/message.service";
-
 import MessageItem from "./MessageItem";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MessageWithAuthor } from "@/types/message.type";
 
 interface MessageListProps {
   conversationId?: string;
 }
 
 export default function MessageList({ conversationId }: MessageListProps) {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["messages"],
+  const { data, isLoading, isError } = useQuery<MessageWithAuthor[]>({
+    queryKey: ["messages", conversationId],
     queryFn: async () => {
       return await MessageService.fetchMessages({ conversationId });
     },
@@ -20,22 +20,20 @@ export default function MessageList({ conversationId }: MessageListProps) {
 
   if (isLoading) {
     return (
-      <div>
-        <Skeleton className="h-20 w-full mb-2" />
-        <Skeleton className="h-20 w-full mb-2" />
-        <Skeleton className="h-20 w-full mb-2" />
-        <Skeleton className="h-20 w-full mb-2" />
-        <Skeleton className="h-20 w-full mb-2" />
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-20 w-full" />
       </div>
     );
   }
 
   if (isError) {
-    return <p>Error loading messages.</p>;
+    return <p className="text-destructive">Erreur lors du chargement des messages.</p>;
   }
 
   if (!data || data.length === 0) {
-    return <p>No messages found.</p>;
+    return <p className="text-muted-foreground">Aucun message pour l&apos;instant.</p>;
   }
 
   return (
